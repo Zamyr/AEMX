@@ -1,0 +1,21 @@
+{
+  "migIndex": 1,
+  "data": [
+    {
+      "path": "assets/fonts/Garnett-Bold.ttf",
+      "sha1": "4eed4a5ef9e621104949a2b8491075194b314e9a"
+    },
+    {
+      "path": "assets/fonts/Garnett-Regular.ttf",
+      "sha1": "bf74742bea334538b088d57041a7711f9e4f76a2"
+    },
+    {
+      "path": "assets/fonts/Garnett-Semibold.ttf",
+      "sha1": "d433d7321fcb6a2677d04013460c5acc00617130"
+    },
+    {
+      "path": "assets/fonts/README.md",
+      "sha1": "47baa5449566112b2af34120cbbc528560c10884"
+    }
+  ]
+}

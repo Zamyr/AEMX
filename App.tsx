@@ -1,8 +1,12 @@
-import { Text } from "react-native";
+import React from 'react';
+import { View } from 'react-native';
+import { Header } from './src/presentation/components/Header';
 
 function App() {
   return (
-    <Text>Hello, world!</Text>
+    <View style={{ flex: 1 }}>
+      <Header />
+    </View>
   );
 }
 
