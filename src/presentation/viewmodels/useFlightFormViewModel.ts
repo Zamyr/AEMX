@@ -20,7 +20,10 @@ export const useFlightFormViewModel = () => {
   };
 
   const handleSearchFlight = () => {
-    navigation.navigate('SearchResults');
+    navigation.navigate('SearchResults', {
+      flightNumber,
+      selectedDate,
+    });
   };
 
   return {

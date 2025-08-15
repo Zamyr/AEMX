@@ -6,7 +6,10 @@ import { SearchResultsScreen } from './src/presentation/screens/SearchResultsScr
 
 export type RootStackParamList = {
   Home: undefined;
-  SearchResults: undefined;
+  SearchResults: {
+    flightNumber: string;
+    selectedDate: Date;
+  };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
