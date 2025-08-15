@@ -164,7 +164,12 @@ const CalendarIcon = styled(Image)`
 `;
 
 export const FlightForm: React.FC = () => {
-  const { flightNumber, setFlightNumber, formattedDate } = useFlightFormViewModel();
+    const {
+    flightNumber,
+    setFlightNumber,
+    formattedDate,
+    handleSearchFlight,
+  } = useFlightFormViewModel();
   const { selectTab } = usePanelViewModel();
 
   const handleDestinationPress = () => {
@@ -200,11 +205,9 @@ export const FlightForm: React.FC = () => {
         </DateBox>
       </InputRow>
       
-      <SearchButton>
-        <SearchButtonText>Search Flight</SearchButtonText>
-      </SearchButton>
-      
-      <TextContainer>
+        <SearchButton onPress={handleSearchFlight}>
+          <SearchButtonText>Search Flight</SearchButtonText>
+        </SearchButton>      <TextContainer>
         <InfoText>Can't find your flight number?</InfoText>
         <DestinationText onPress={handleDestinationPress}>
           <DestinationLabel>
