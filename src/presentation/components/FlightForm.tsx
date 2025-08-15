@@ -1,0 +1,217 @@
+import React from 'react';
+import styled from 'styled-components/native';
+import { TextInput, Image, TouchableOpacity } from 'react-native';
+import { useFlightFormViewModel } from '../viewmodels/useFlightFormViewModel';
+import { usePanelViewModel } from '../viewmodels/usePanelViewModel';
+
+const FormContainer = styled.View`
+  align-items: center;
+  margin-top: 62px;
+`;
+
+const InputRow = styled.View`
+  flex-direction: row;
+  justify-content: center;
+  gap: 15px;
+`;
+
+const SearchButton = styled(TouchableOpacity)`
+  width: 360px;
+  height: 56px;
+  background-color: #000000;
+  border-radius: 8px;
+  padding-top: 16px;
+  padding-right: 24px;
+  padding-bottom: 16px;
+  padding-left: 24px;
+  justify-content: center;
+  align-items: center;
+  margin-top: 15px;
+`;
+
+const SearchButtonText = styled.Text`
+  font-family: 'Garnett-Semibold';
+  font-weight: 600;
+  font-size: 16px;
+  color: white;
+  text-align: center;
+`;
+
+const TextContainer = styled.View`
+  align-items: center;
+  margin-top: 30px;
+`;
+
+const InfoText = styled.Text`
+  font-family: 'Garnett-Regular';
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 22px;
+  text-align: center;
+  color: rgba(0, 0, 0, 0.7);
+`;
+
+const DestinationText = styled(TouchableOpacity)`
+  align-items: center;
+`;
+
+const DestinationLabel = styled.Text`
+  font-family: 'Garnett-Regular';
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 22px;
+  text-align: center;
+  color: rgba(0, 0, 0, 0.7);
+`;
+
+const DestinationHighlight = styled.Text`
+  font-family: 'Garnett-Semibold';
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 22px;
+  text-align: center;
+  color: #000;
+  text-decoration-line: underline;
+`;
+
+const InputBox = styled.View`
+  width: 130px;
+  height: 64px;
+  border-radius: 12px;
+  border-width: 2px;
+  border-color: #000;
+  padding: 15px;
+  gap: 2px;
+`;
+
+const DateBox = styled.View`
+  width: 215px;
+  height: 64px;
+  border-radius: 12px;
+  border-width: 2px;
+  border-color: #000;
+  padding: 15px;
+  gap: 1px;
+  flex-direction: row;
+  align-items: center;
+`;
+
+const DateTextContainer = styled.View`
+  flex: 1;
+`;
+
+const Label = styled.Text`
+  font-family: 'Garnett-Regular';
+  font-weight: 400;
+  font-size: 10px;
+  line-height: 14px;
+  color: #666;
+`;
+
+const CarrierText = styled.Text`
+  font-family: 'Garnett-Semibold';
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 18px;
+  color: #000;
+`;
+
+const DateText = styled.Text`
+  font-family: 'Garnett-Semibold';
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 18px;
+  color: #000;
+  margin-top: 2px;
+`;
+
+const FlightInputRow = styled.View`
+  flex-direction: row;
+  align-items: center;
+  gap: 5px;
+`;
+
+const FlightInput = styled(TextInput)`
+  flex: 1;
+  font-family: 'Garnett-Semibold';
+  font-weight: 600;
+  font-size: 16px;
+  color: #000;
+  padding: 0;
+  margin: 0;
+  line-height: 18px;
+`;
+
+const PlaceholderText = styled.Text`
+  font-family: 'Garnett-Semibold';
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 18px;
+  color: #666;
+  position: absolute;
+  left: 0;
+  top: 0;
+`;
+
+const FlightInputContainer = styled.View`
+  flex: 1;
+  position: relative;
+`;
+
+const CalendarIcon = styled(Image)`
+  width: 21px;
+  height: 21px;
+`;
+
+export const FlightForm: React.FC = () => {
+  const { flightNumber, setFlightNumber, formattedDate } = useFlightFormViewModel();
+  const { selectTab } = usePanelViewModel();
+
+  const handleDestinationPress = () => {
+    selectTab('destination');
+  };
+
+  return (
+    <FormContainer>
+      <InputRow>
+        <InputBox>
+          <Label>Flight number</Label>
+          <FlightInputRow>
+            <CarrierText>AM</CarrierText>
+            <FlightInputContainer>
+              <FlightInput
+                value={flightNumber}
+                onChangeText={setFlightNumber}
+                keyboardType="numeric"
+                placeholder=""
+                multiline={false}
+              />
+              {!flightNumber && <PlaceholderText>000</PlaceholderText>}
+            </FlightInputContainer>
+          </FlightInputRow>
+        </InputBox>
+        
+        <DateBox>
+          <DateTextContainer>
+            <Label>Date of departure</Label>
+            <DateText>{formattedDate}</DateText>
+          </DateTextContainer>
+          <CalendarIcon source={require('../../../assets/images/icons/Calendar.png')} />
+        </DateBox>
+      </InputRow>
+      
+      <SearchButton>
+        <SearchButtonText>Search Flight</SearchButtonText>
+      </SearchButton>
+      
+      <TextContainer>
+        <InfoText>Can't find your flight number?</InfoText>
+        <DestinationText onPress={handleDestinationPress}>
+          <DestinationLabel>
+            Try searching by <DestinationHighlight>destination</DestinationHighlight>
+          </DestinationLabel>
+        </DestinationText>
+      </TextContainer>
+    </FormContainer>
+  );
+};
