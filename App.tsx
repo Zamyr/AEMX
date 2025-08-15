@@ -1,12 +1,18 @@
 import React from 'react';
-import { View } from 'react-native';
-import { Header } from './src/presentation/components/Header';
+import styled from 'styled-components/native';
+import { HeaderStyled } from './src/presentation/components/HeaderStyled';
+import { PanelContainer } from './src/presentation/components/PanelContainer';
+
+const AppContainer = styled.View`
+  flex: 1;
+`;
 
 function App() {
   return (
-    <View style={{ flex: 1 }}>
-      <Header />
-    </View>
+    <AppContainer>
+      <HeaderStyled />
+      <PanelContainer />
+    </AppContainer>
   );
 }
 
