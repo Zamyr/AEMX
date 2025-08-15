@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components/native';
 import { TextInput, Image, TouchableOpacity } from 'react-native';
 import { useFlightFormViewModel } from '../viewmodels/useFlightFormViewModel';
-import { usePanelViewModel } from '../viewmodels/usePanelViewModel';
+import { usePanelContext } from '../contexts/PanelContext';
 
 const FormContainer = styled.View`
   align-items: center;
@@ -51,8 +51,11 @@ const InfoText = styled.Text`
   color: rgba(0, 0, 0, 0.7);
 `;
 
-const DestinationText = styled(TouchableOpacity)`
+const DestinationText = styled.View`
   align-items: center;
+  flex-direction: row;
+  justify-content: center;
+  flex-wrap: wrap;
 `;
 
 const DestinationLabel = styled.Text`
@@ -60,16 +63,16 @@ const DestinationLabel = styled.Text`
   font-weight: 400;
   font-size: 12px;
   line-height: 22px;
-  text-align: center;
   color: rgba(0, 0, 0, 0.7);
 `;
 
-const DestinationHighlight = styled.Text`
+const DestinationHighlight = styled(TouchableOpacity)``;
+
+const DestinationHighlightText = styled.Text`
   font-family: 'Garnett-Semibold';
   font-weight: 600;
   font-size: 12px;
   line-height: 22px;
-  text-align: center;
   color: #000;
   text-decoration-line: underline;
 `;
@@ -170,7 +173,7 @@ export const FlightForm: React.FC = () => {
     formattedDate,
     handleSearchFlight,
   } = useFlightFormViewModel();
-  const { selectTab } = usePanelViewModel();
+  const { selectTab } = usePanelContext();
 
   const handleDestinationPress = () => {
     selectTab('destination');
@@ -205,14 +208,17 @@ export const FlightForm: React.FC = () => {
         </DateBox>
       </InputRow>
       
-        <SearchButton onPress={handleSearchFlight}>
-          <SearchButtonText>Search Flight</SearchButtonText>
-        </SearchButton>      <TextContainer>
+      <SearchButton onPress={handleSearchFlight}>
+        <SearchButtonText>Search Flight</SearchButtonText>
+      </SearchButton>
+      
+      <TextContainer>
         <InfoText>Can't find your flight number?</InfoText>
-        <DestinationText onPress={handleDestinationPress}>
-          <DestinationLabel>
-            Try searching by <DestinationHighlight>destination</DestinationHighlight>
-          </DestinationLabel>
+        <DestinationText>
+          <DestinationLabel>Try searching by </DestinationLabel>
+          <DestinationHighlight onPress={handleDestinationPress}>
+            <DestinationHighlightText>destination</DestinationHighlightText>
+          </DestinationHighlight>
         </DestinationText>
       </TextContainer>
     </FormContainer>

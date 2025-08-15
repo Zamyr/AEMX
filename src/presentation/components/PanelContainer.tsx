@@ -1,8 +1,9 @@
 import React from 'react';
 import styled from 'styled-components/native';
 import { TouchableOpacity } from 'react-native';
-import { usePanelViewModel } from '../viewmodels/usePanelViewModel';
+import { usePanelContext } from '../contexts/PanelContext';
 import { FlightForm } from './FlightForm';
+import { DestinationForm } from './DestinationForm';
 
 const Container = styled.View`
   width: 100%;
@@ -59,7 +60,7 @@ const TabContainer = styled.View`
 `;
 
 export const PanelContainer: React.FC = () => {
-  const { selectTab, isTabSelected } = usePanelViewModel();
+  const { selectTab, isTabSelected } = usePanelContext();
 
   return (
     <Container>
@@ -81,6 +82,7 @@ export const PanelContainer: React.FC = () => {
         </TabContainer>
       </PanelBox>
       {isTabSelected('flightNumber') && <FlightForm />}
+      {isTabSelected('destination') && <DestinationForm />}
     </Container>
   );
 };
