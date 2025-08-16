@@ -40,6 +40,21 @@ La elección de MVVM se debe a:
 - **Propósito**: Gestión reactiva del estado del servidor y cache automático
 - **Razón**: Sincronización automática de datos, manejo de loading states y cache inteligente
 
+## Datos de Prueba
+
+La aplicación utiliza datos mock para simular las respuestas de la API. Puedes probar la funcionalidad con los siguientes datos:
+
+### Búsqueda por Número de Vuelo
+- **Número de vuelo**: `500`
+- **Fecha**: `21 de noviembre de 2023`
+
+### Búsqueda por Ruta (Origen-Destino)
+- **Origen**: `Mexico City (MEX)`
+- **Destino**: `Cancún (CUN)`
+- **Fecha**: `21 de noviembre de 2023`
+
+Estos datos están basados en los archivos JSON proporcionados (`NumerodeVueloResponse.json` y `OrigenDestinoResponse.json`) ubicados en el directorio `data/`.
+
 ## Configuración para Android
 
 Para ejecutar la aplicación en Android, sigue estos pasos:

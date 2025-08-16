@@ -370,7 +370,6 @@ export const DetailScreen: React.FC = () => {
   };
 
   const formatFlightDate = () => {
-    // Usar estimatedDepartureTime del flightData si está disponible
     const departureTime = flightData.estimatedDepartureTime || new Date().toISOString();
     const options: Intl.DateTimeFormatOptions = { 
       weekday: 'long', 
@@ -383,13 +382,11 @@ export const DetailScreen: React.FC = () => {
   const formatTime = (timeString: string) => {
     if (!timeString) return '--:--';
     
-    // Si viene en formato ISO "2023-11-21T22:14:00", extraer solo HH:MM
     if (timeString.includes('T')) {
-      const timePart = timeString.split('T')[1]; // Obtiene "22:14:00"
-      return timePart.substring(0, 5); // Obtiene "22:14"
+      const timePart = timeString.split('T')[1];
+      return timePart.substring(0, 5);
     }
     
-    // Si viene en formato "06:24:00", extraer solo HH:MM
     if (timeString.includes(':') && timeString.length >= 5) {
       return timeString.substring(0, 5);
     }

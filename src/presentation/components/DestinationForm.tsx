@@ -160,7 +160,6 @@ const DestinationHighlightText = styled.Text`
   text-decoration-line: underline;
 `;
 
-// Modal Components
 const ModalOverlay = styled.View`
   flex: 1;
   background-color: rgba(0, 0, 0, 0.5);

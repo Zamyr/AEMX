@@ -21,7 +21,6 @@ type FlightItemData = {
   duration: string;
   flightCode: string;
   delayInMinutes: number;
-  // Campos adicionales del JSON
   estimatedDepartureTime?: string;
   boardingTerminal?: string;
   boardingGate?: string;

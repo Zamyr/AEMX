@@ -1,6 +1,5 @@
 import { TextStyle } from 'react-native';
 
-// Tipografía Garnett - Configuración de fuentes
 export const typography = {
   fonts: {
     garnett: {
@@ -23,7 +22,6 @@ export const typography = {
   },
 };
 
-// Estilos base para textos con Garnett
 export const textStyles: Record<string, TextStyle> = {
   headerTitle: {
     fontFamily: typography.fonts.garnett.semibold,

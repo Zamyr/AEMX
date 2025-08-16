@@ -34,17 +34,15 @@ export const useFlightFormViewModel = () => {
       const result = await flightRepository.searchFlightByNumber(flightNumber, selectedDate);
       
       if (result.flightStatusCollection.length > 0) {
-        // Si encuentra vuelos, navegar a SearchResults
         navigation.navigate('SearchResults', {
           flightNumber,
           selectedDate,
         });
       } else {
-        // Si no encuentra vuelos, mostrar mensaje
-        setNotFoundMessage('Vuelo no encontrado');
+        setNotFoundMessage('Flight not found');
       }
     } catch (error) {
-      setNotFoundMessage('Error al buscar vuelo');
+      setNotFoundMessage('Error searching for flight');
     } finally {
       setIsSearching(false);
     }
@@ -59,7 +57,6 @@ export const useFlightFormViewModel = () => {
     if (date) {
       setSelectedDate(date);
     }
-    // Limpiar mensaje de error cuando se cambia la fecha
     if (notFoundMessage) {
       setNotFoundMessage('');
     }
@@ -67,7 +64,6 @@ export const useFlightFormViewModel = () => {
 
   const handleFlightNumberChange = (text: string) => {
     setFlightNumber(text);
-    // Limpiar mensaje de error cuando se cambia el número de vuelo
     if (notFoundMessage) {
       setNotFoundMessage('');
     }

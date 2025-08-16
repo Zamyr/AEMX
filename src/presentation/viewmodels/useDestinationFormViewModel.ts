@@ -39,7 +39,6 @@ export const useDestinationFormViewModel = () => {
       setIsSearching(true);
       setNotFoundMessage('');
       
-      // Filtrar vuelos por origen, destino y fecha
       const targetYear = selectedDate.getFullYear();
       const targetMonth = selectedDate.getMonth() + 1;
       const targetDay = selectedDate.getDate();
