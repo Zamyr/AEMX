@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components/native';
-import { TouchableOpacity, Image, FlatList } from 'react-native';
+import { TouchableOpacity, Image, FlatList, ActivityIndicator, Text, Platform } from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../../App';
 import { FlightStatusLine } from '../components/FlightStatusLine';
+import { useSearchResultsViewModel } from '../viewmodels/useSearchResultsViewModel';
 
 type SearchResultsRouteProp = RouteProp<RootStackParamList, 'SearchResults'>;
 type SearchResultsNavigationProp = NativeStackNavigationProp<RootStackParamList, 'SearchResults'>;
@@ -14,6 +16,11 @@ type FlightItemData = {
   status: 'Arrived' | 'OnTime' | 'Delayed';
   departureTime: string;
   arrivalTime: string;
+  departureAirport: string;
+  arrivalAirport: string;
+  duration: string;
+  flightCode: string;
+  delayInMinutes: number;
 };
 
 const Container = styled.View`
@@ -145,13 +152,14 @@ const FlightItem = styled.View`
 
 const StatusBadge = styled.View`
   position: absolute;
-  top: 0;
-  left: 0;
+  top: -1px;
+  left: -1px;
   width: 80px;
   height: 28px;
-  padding: 4px 20px 4px 15px;
+  padding: 4px 20px 4px 20px;
   background-color: #000;
   border-bottom-right-radius: 20px;
+  border-top-left-radius: 10px;
   justify-content: center;
 `;
 
@@ -241,20 +249,37 @@ const DetailsText = styled.Text`
   text-decoration-line: underline;
 `;
 
+const NoFlightsContainer = styled.View`
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+  margin-top: 100px;
+`;
+
+const NoFlightsText = styled.Text`
+  font-family: 'Garnett-Regular';
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 22px;
+  color: rgba(0, 0, 0, 0.6);
+  text-align: center;
+`;
+
 export const SearchResultsScreen: React.FC = () => {
   const route = useRoute<SearchResultsRouteProp>();
   const navigation = useNavigation<SearchResultsNavigationProp>();
   
-  const { flightNumber, selectedDate } = route.params;
-
-  const flightData = [
-    {
-      id: '1',
-      status: 'Arrived' as const,
-      departureTime: '06:24',
-      arrivalTime: '09:21',
-    },
-  ];
+  const { flightNumber } = route.params;
+  const [currentDate, setCurrentDate] = useState(route.params.selectedDate);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  
+  const {
+    flights,
+    isLoading,
+    error,
+    routeText,
+    resultsCount,
+  } = useSearchResultsViewModel(flightNumber, currentDate);
 
   const formatDate = (date: Date) => {
     const options: Intl.DateTimeFormatOptions = { 
@@ -270,7 +295,14 @@ export const SearchResultsScreen: React.FC = () => {
   };
 
   const handleChangeDate = () => {
-    navigation.goBack();
+    setShowDatePicker(true);
+  };
+
+  const handleDatePickerChange = (event: any, date?: Date) => {
+    setShowDatePicker(false);
+    if (date) {
+      setCurrentDate(date);
+    }
   };
 
   const renderFlightItem = ({ item }: { item: FlightItemData }) => (
@@ -284,15 +316,15 @@ export const SearchResultsScreen: React.FC = () => {
         <TimeText>{item.arrivalTime}</TimeText>
       </FlightTimesRow>
       <FlightDetailsRow>
-        <AirportCode>MEX</AirportCode>
+        <AirportCode>{item.departureAirport}</AirportCode>
         <FlightDurationContainer>
-          <FlightDuration>2h 28m</FlightDuration>
+          <FlightDuration>{item.duration}</FlightDuration>
         </FlightDurationContainer>
-        <AirportCode>CUN</AirportCode>
+        <AirportCode>{item.arrivalAirport}</AirportCode>
       </FlightDetailsRow>
       <SeparatorLine />
       <BottomRow>
-        <FlightNumberBottom>AM{flightNumber}</FlightNumberBottom>
+        <FlightNumberBottom>AM{item.flightCode}</FlightNumberBottom>
         <DetailsText>Details</DetailsText>
       </BottomRow>
     </FlightItem>
@@ -309,7 +341,7 @@ export const SearchResultsScreen: React.FC = () => {
             <FlightInfo>
               <FlightNumber>AM{flightNumber}</FlightNumber>
               <DateRow>
-                <DateText>{formatDate(selectedDate)}</DateText>
+                <DateText>{formatDate(currentDate)}</DateText>
                 <Separator>|</Separator>
                 <ChangeSection onPress={handleChangeDate}>
                   <CalendarSmallIcon source={require('../../../assets/images/icons/Calendar.png')} />
@@ -322,16 +354,46 @@ export const SearchResultsScreen: React.FC = () => {
       </Header>
       
       <RouteSection>
-        <RouteText>Mexico City to Cancún</RouteText>
-        <ResultsText>1 result</ResultsText>
+        <RouteText>{routeText || 'Mexico City to Cancún'}</RouteText>
+        <ResultsText>{resultsCount} result{resultsCount !== 1 ? 's' : ''}</ResultsText>
       </RouteSection>
 
-      <FlightList
-        data={flightData}
-        renderItem={renderFlightItem}
-        keyExtractor={(item) => item.id}
-        showsVerticalScrollIndicator={false}
-      />
+      {isLoading && (
+        <ActivityIndicator size="large" color="#000" style={{ marginTop: 50 }} />
+      )}
+
+      {error && (
+        <Text style={{ textAlign: 'center', marginTop: 50, color: 'red' }}>
+          Error loading flights: {error.message}
+        </Text>
+      )}
+
+      {!isLoading && !error && flights.length === 0 && (
+        <NoFlightsContainer>
+          <NoFlightsText>No flights found for this date</NoFlightsText>
+        </NoFlightsContainer>
+      )}
+
+      {flights.length > 0 && (
+        <FlightList
+          data={flights}
+          renderItem={renderFlightItem}
+          keyExtractor={(item) => item.id}
+          showsVerticalScrollIndicator={false}
+        />
+      )}
+
+      {showDatePicker && (
+        <DateTimePicker
+          value={currentDate}
+          mode="date"
+          display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+          onChange={handleDatePickerChange}
+          textColor="#000000"
+          accentColor="#000000"
+          themeVariant="light"
+        />
+      )}
     </Container>
   );
 };

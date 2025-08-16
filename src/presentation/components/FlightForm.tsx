@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components/native';
-import { TextInput, Image, TouchableOpacity } from 'react-native';
+import { TextInput, Image, TouchableOpacity, Platform, ActivityIndicator } from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { useFlightFormViewModel } from '../viewmodels/useFlightFormViewModel';
 import { usePanelContext } from '../contexts/PanelContext';
 
@@ -87,7 +88,7 @@ const InputBox = styled.View`
   gap: 2px;
 `;
 
-const DateBox = styled.View`
+const DateBox = styled(TouchableOpacity)`
   width: 215px;
   height: 64px;
   border-radius: 12px;
@@ -122,7 +123,7 @@ const CarrierText = styled.Text`
 const DateText = styled.Text`
   font-family: 'Garnett-Semibold';
   font-weight: 600;
-  font-size: 16px;
+  font-size: 14px;
   line-height: 18px;
   color: #000;
   margin-top: 2px;
@@ -166,12 +167,34 @@ const CalendarIcon = styled(Image)`
   height: 21px;
 `;
 
+const ErrorMessage = styled.Text`
+  font-family: 'Garnett-Regular';
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 16px;
+  color: rgba(0, 0, 0, 0.4);
+  text-align: center;
+  margin-top: 8px;
+`;
+
+const LoadingContainer = styled.View`
+  align-items: center;
+  margin-top: 8px;
+`;
+
 export const FlightForm: React.FC = () => {
     const {
     flightNumber,
     setFlightNumber,
     formattedDate,
     handleSearchFlight,
+    isSearchEnabled,
+    showDatePicker,
+    handleDatePress,
+    handleDateChange,
+    selectedDate,
+    isSearching,
+    notFoundMessage,
   } = useFlightFormViewModel();
   const { selectTab } = usePanelContext();
 
@@ -199,7 +222,7 @@ export const FlightForm: React.FC = () => {
           </FlightInputRow>
         </InputBox>
         
-        <DateBox>
+        <DateBox onPress={handleDatePress}>
           <DateTextContainer>
             <Label>Date of departure</Label>
             <DateText>{formattedDate}</DateText>
@@ -208,9 +231,34 @@ export const FlightForm: React.FC = () => {
         </DateBox>
       </InputRow>
       
-      <SearchButton onPress={handleSearchFlight}>
+      <SearchButton 
+        onPress={isSearchEnabled ? handleSearchFlight : undefined}
+        activeOpacity={isSearchEnabled ? 0.8 : 1}
+      >
         <SearchButtonText>Search Flight</SearchButtonText>
       </SearchButton>
+
+      {isSearching && (
+        <LoadingContainer>
+          <ActivityIndicator size="small" color="rgba(0, 0, 0, 0.4)" />
+        </LoadingContainer>
+      )}
+
+      {notFoundMessage && !isSearching && (
+        <ErrorMessage>{notFoundMessage}</ErrorMessage>
+      )}
+
+      {showDatePicker && (
+        <DateTimePicker
+          value={selectedDate}
+          mode="date"
+          display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+          onChange={handleDateChange}
+          textColor="#000000"
+          accentColor="#000000"
+          themeVariant="light"
+        />
+      )}
       
       <TextContainer>
         <InfoText>Can't find your flight number?</InfoText>
