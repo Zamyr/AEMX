@@ -1,4 +1,89 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# AEMX - Flight Tracking Application
+
+## Acerca de la Aplicación
+
+AEMX es una aplicación móvil desarrollada en React Native que permite a los usuarios rastrear el estado de vuelos en tiempo real. La aplicación ofrece dos métodos de búsqueda: por número de vuelo específico o por ruta (origen-destino). Los usuarios pueden consultar información detallada como horarios de salida y llegada, estados de vuelo, puertas de embarque, terminales y posibles retrasos.
+
+## Arquitectura
+
+Este proyecto implementa **MVVM (Model-View-ViewModel)** como arquitectura principal:
+
+- **Model**: Definido en `src/core/models/` - Contiene las interfaces y tipos de datos como `FlightStatus`, `FlightResponse`, etc.
+- **View**: Componentes React Native en `src/presentation/components/` y `src/presentation/screens/`
+- **ViewModel**: Hooks personalizados en `src/presentation/viewmodels/` que manejan la lógica de negocio y estado
+
+La elección de MVVM se debe a:
+- **Separación clara de responsabilidades**: La lógica de UI está separada de la lógica de negocio
+- **Testabilidad**: Los ViewModels pueden ser probados independientemente de la UI
+- **Reutilización**: Los ViewModels pueden ser compartidos entre diferentes componentes
+- **Mantenibilidad**: Facilita el mantenimiento y escalabilidad del código
+
+## Patrones de Diseño Implementados
+
+### 1. **Singleton Pattern**
+- **Implementado en**: `ApiService`, `FlightRepository`
+- **Propósito**: Garantizar una única instancia de servicios compartidos
+- **Razón**: Evita múltiples instancias de servicios críticos y centraliza la configuración
+
+### 2. **Repository Pattern**
+- **Implementado en**: `FlightRepository`
+- **Propósito**: Abstrae el acceso a datos y centraliza las operaciones de búsqueda
+- **Razón**: Facilita el testing con mocks y permite cambiar la fuente de datos sin afectar la lógica de negocio
+
+### 3. **Context Pattern**
+- **Implementado en**: `PanelContext`
+- **Propósito**: Manejo del estado global para la selección de tabs
+- **Razón**: Evita prop drilling y centraliza el estado compartido entre componentes
+
+### 4. **Observer Pattern (Implementación mediante TanStack Query)**
+- **Implementado en**: ViewModels con `useQuery`
+- **Propósito**: Gestión reactiva del estado del servidor y cache automático
+- **Razón**: Sincronización automática de datos, manejo de loading states y cache inteligente
+
+## Configuración para Android
+
+Para ejecutar la aplicación en Android, sigue estos pasos:
+
+### Prerrequisitos
+1. **Android Studio** instalado con SDK de Android
+2. **Java Development Kit (JDK) 17** o superior
+3. **Node.js** versión 16 o superior
+4. **React Native CLI** instalado globalmente
+
+### Variables de entorno
+Asegúrate de tener configuradas las siguientes variables en tu `.bashrc`, `.zshrc` o equivalente:
+
+```bash
+export ANDROID_HOME=$HOME/Library/Android/sdk
+export PATH=$PATH:$ANDROID_HOME/emulator
+export PATH=$PATH:$ANDROID_HOME/tools
+export PATH=$PATH:$ANDROID_HOME/tools/bin
+export PATH=$PATH:$ANDROID_HOME/platform-tools
+```
+
+### Pasos de instalación
+
+1. **Instalar dependencias**:
+```bash
+npm install
+# o
+yarn install
+```
+
+2. **Ejecutar Metro** (en una terminal):
+```bash
+npx react-native start
+```
+
+3. **Compilar y ejecutar en Android** (en otra terminal):
+```bash
+npx react-native run-android
+```
+
+### Notas importantes para Android
+- El emulador debe estar ejecutándose o tener un dispositivo Android conectado con depuración USB habilitada
+- Si es la primera vez que ejecutas el proyecto, la compilación puede tardar varios minutos
+- En caso de errores de build, ejecuta: `cd android && ./gradlew clean && cd ..`
 
 # Getting Started
 
