@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components/native';
-import { TouchableOpacity, Image, FlatList, ActivityIndicator, Text, Platform } from 'react-native';
+import { TouchableOpacity, Image, FlatList, ActivityIndicator, Platform } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -265,6 +265,25 @@ const NoFlightsText = styled.Text`
   text-align: center;
 `;
 
+const LoadingContainer = styled.View`
+  margin-top: 50px;
+  align-items: center;
+`;
+
+const ErrorContainer = styled.View`
+  margin-top: 50px;
+  align-items: center;
+`;
+
+const ErrorText = styled.Text`
+  font-family: 'Garnett-Regular';
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 22px;
+  color: red;
+  text-align: center;
+`;
+
 export const SearchResultsScreen: React.FC = () => {
   const route = useRoute<SearchResultsRouteProp>();
   const navigation = useNavigation<SearchResultsNavigationProp>();
@@ -272,6 +291,10 @@ export const SearchResultsScreen: React.FC = () => {
   const { flightNumber } = route.params;
   const [currentDate, setCurrentDate] = useState(route.params.selectedDate);
   const [showDatePicker, setShowDatePicker] = useState(false);
+  
+  // Detectar si es búsqueda por origen-destino
+  const isDestinationSearch = flightNumber.includes('-');
+  const [origin, destination] = isDestinationSearch ? flightNumber.split('-') : ['', ''];
   
   const {
     flights,
@@ -339,7 +362,9 @@ export const SearchResultsScreen: React.FC = () => {
               <ArrowIcon source={require('../../../assets/images/icons/arrowleft.png')} />
             </BackButton>
             <FlightInfo>
-              <FlightNumber>AM{flightNumber}</FlightNumber>
+              <FlightNumber>
+                {isDestinationSearch ? `${origin} → ${destination}` : `AM${flightNumber}`}
+              </FlightNumber>
               <DateRow>
                 <DateText>{formatDate(currentDate)}</DateText>
                 <Separator>|</Separator>
@@ -359,13 +384,15 @@ export const SearchResultsScreen: React.FC = () => {
       </RouteSection>
 
       {isLoading && (
-        <ActivityIndicator size="large" color="#000" style={{ marginTop: 50 }} />
+        <LoadingContainer>
+          <ActivityIndicator size="large" color="#000" />
+        </LoadingContainer>
       )}
 
       {error && (
-        <Text style={{ textAlign: 'center', marginTop: 50, color: 'red' }}>
-          Error loading flights: {error.message}
-        </Text>
+        <ErrorContainer>
+          <ErrorText>Error loading flights: {error.message}</ErrorText>
+        </ErrorContainer>
       )}
 
       {!isLoading && !error && flights.length === 0 && (

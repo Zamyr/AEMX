@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import styled from 'styled-components/native';
-import { TouchableOpacity, Platform, Image, Modal, FlatList } from 'react-native';
+import { TouchableOpacity, Platform, Image, Modal, FlatList, ActivityIndicator } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { usePanelContext } from '../contexts/PanelContext';
+import { useDestinationFormViewModel } from '../viewmodels/useDestinationFormViewModel';
 
 const FormContainer = styled.View`
   align-items: center;
@@ -236,6 +238,21 @@ const AirportCode = styled.Text`
   color: rgba(0, 0, 0, 0.3);
 `;
 
+const ErrorMessage = styled.Text`
+  font-family: 'Garnett-Regular';
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 16px;
+  color: rgba(0, 0, 0, 0.4);
+  text-align: center;
+  margin-top: 8px;
+`;
+
+const LoadingContainer = styled.View`
+  align-items: center;
+  margin-top: 8px;
+`;
+
 // Types
 interface Airport {
   code: string;
@@ -250,21 +267,25 @@ const airports: Airport[] = [
 ];
 
 export const DestinationForm: React.FC = () => {
-  const [selectedOrigin, setSelectedOrigin] = useState<Airport | null>(null);
-  const [selectedDestination, setSelectedDestination] = useState<Airport | null>(null);
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const [showDatePicker, setShowDatePicker] = useState<boolean>(false);
   const [showOriginPicker, setShowOriginPicker] = useState<boolean>(false);
   const [showDestinationPicker, setShowDestinationPicker] = useState<boolean>(false);
-
-  const formatDate = (date: Date): string => {
-    const options: Intl.DateTimeFormatOptions = {
-      weekday: 'short',
-      month: 'short',
-      day: 'numeric',
-    };
-    return date.toLocaleDateString('en-US', options);
-  };
+  const { selectTab } = usePanelContext();
+  
+  const {
+    selectedOrigin,
+    selectedDestination,
+    selectedDate,
+    setSelectedOrigin,
+    setSelectedDestination,
+    formattedDate,
+    handleSearchFlights,
+    isSearchEnabled,
+    showDatePicker,
+    handleDatePress,
+    handleDateChange,
+    isSearching,
+    notFoundMessage,
+  } = useDestinationFormViewModel();
 
   const handleOriginPress = () => {
     setShowOriginPicker(true);
@@ -292,22 +313,6 @@ export const DestinationForm: React.FC = () => {
     setShowDestinationPicker(false);
   };
 
-  const handleDatePress = () => {
-    setShowDatePicker(true);
-  };
-
-  const handleDateChange = (event: any, date?: Date) => {
-    if (Platform.OS === 'android') {
-      setShowDatePicker(false);
-    }
-    if (date) {
-      setSelectedDate(date);
-    }
-    if (Platform.OS === 'ios' && event.type === 'dismissed') {
-      setShowDatePicker(false);
-    }
-  };
-
   const renderLocationText = (airport: Airport | null) => {
     if (!airport) {
       return <PlaceholderText>Select location</PlaceholderText>;
@@ -322,8 +327,7 @@ export const DestinationForm: React.FC = () => {
   };
 
   const handleFlightNumberPress = () => {
-    // TODO: Implementar navegación al panel de flight number
-    console.log('Navigate to flight number');
+    selectTab('flightNumber');
   };
 
   return (
@@ -343,14 +347,27 @@ export const DestinationForm: React.FC = () => {
       <DateBox onPress={handleDatePress}>
         <DateTextContainer>
           <Label>Date of departure</Label>
-          <DateText>{formatDate(selectedDate)}</DateText>
+          <DateText>{formattedDate}</DateText>
         </DateTextContainer>
         <CalendarIcon source={require('../../../assets/images/icons/Calendar.png')} />
       </DateBox>
 
-      <SearchButton onPress={() => console.log('Search flights')}>
+      <SearchButton 
+        onPress={isSearchEnabled ? handleSearchFlights : undefined}
+        activeOpacity={isSearchEnabled ? 0.8 : 1}
+      >
         <SearchButtonText>Search Flight</SearchButtonText>
       </SearchButton>
+
+      {isSearching && (
+        <LoadingContainer>
+          <ActivityIndicator size="small" color="rgba(0, 0, 0, 0.4)" />
+        </LoadingContainer>
+      )}
+
+      {notFoundMessage && !isSearching && (
+        <ErrorMessage>{notFoundMessage}</ErrorMessage>
+      )}
 
       {showDatePicker && (
         <DateTimePicker
@@ -378,7 +395,7 @@ export const DestinationForm: React.FC = () => {
       <Modal
         visible={showOriginPicker}
         transparent={true}
-        animationType="slide"
+        animationType="fade"
         onRequestClose={closeOriginPicker}
       >
         <ModalOverlay>
@@ -410,7 +427,7 @@ export const DestinationForm: React.FC = () => {
       <Modal
         visible={showDestinationPicker}
         transparent={true}
-        animationType="slide"
+        animationType="fade"
         onRequestClose={closeDestinationPicker}
       >
         <ModalOverlay>
