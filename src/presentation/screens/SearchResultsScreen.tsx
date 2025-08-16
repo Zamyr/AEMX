@@ -21,6 +21,13 @@ type FlightItemData = {
   duration: string;
   flightCode: string;
   delayInMinutes: number;
+  // Campos adicionales del JSON
+  estimatedDepartureTime?: string;
+  boardingTerminal?: string;
+  boardingGate?: string;
+  boardingTime?: string;
+  arrivalTerminal?: string;
+  arrivalDateTime?: string;
 };
 
 const Container = styled.View`
@@ -159,13 +166,10 @@ const StatusBadge = styled.View<{ status: string }>`
   padding: 4px 20px 4px 20px;
   background-color: ${({ status }) => {
     switch (status) {
-      case 'DELAYED':
       case 'Delayed':
         return '#FECB2F';
-      case 'ARRIVED':
       case 'Arrived':
         return '#000';
-      case 'ON_TIME':
       case 'OnTime':
         return '#1872B3';
       default:
@@ -264,6 +268,10 @@ const DetailsText = styled.Text`
   text-decoration-line: underline;
 `;
 
+const DetailsButton = styled(TouchableOpacity)`
+  padding: 0px;
+`;
+
 const NoFlightsContainer = styled.View`
   flex: 1;
   justify-content: center;
@@ -278,6 +286,40 @@ const NoFlightsText = styled.Text`
   line-height: 22px;
   color: rgba(0, 0, 0, 0.6);
   text-align: center;
+`;
+
+const FavoriteRow = styled.View`
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+`;
+
+const FavoriteText = styled.Text`
+  font-family: 'Garnett-Semibold';
+  font-weight: 600;
+  font-size: 11px;
+  line-height: 18px;
+  color: #000;
+`;
+
+const ToggleContainer = styled(TouchableOpacity)<{ isActive: boolean }>`
+  width: 33px;
+  height: 19px;
+  border-radius: 10px;
+  background-color: ${({ isActive }) => (isActive ? '#000' : '#ccc')};
+  justify-content: center;
+  padding: 1px;
+`;
+
+const ToggleCircle = styled.View<{ isActive: boolean }>`
+  width: 17px;
+  height: 17px;
+  border-radius: 8.5px;
+  background-color: #fff;
+  align-self: ${({ isActive }) => (isActive ? 'flex-end' : 'flex-start')};
 `;
 
 const LoadingContainer = styled.View`
@@ -306,6 +348,7 @@ export const SearchResultsScreen: React.FC = () => {
   const { flightNumber } = route.params;
   const [currentDate, setCurrentDate] = useState(route.params.selectedDate);
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [favoriteFlights, setFavoriteFlights] = useState<Set<string>>(new Set());
   
   const isDestinationSearch = flightNumber.includes('-');
   const [origin, destination] = isDestinationSearch ? flightNumber.split('-') : ['', ''];
@@ -331,6 +374,22 @@ export const SearchResultsScreen: React.FC = () => {
     navigation.goBack();
   };
 
+  const handleViewDetails = (flightData: FlightItemData) => {
+    navigation.navigate('Detail', { flightData });
+  };
+
+  const handleToggleFavorite = (flightId: string) => {
+    setFavoriteFlights(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(flightId)) {
+        newSet.delete(flightId);
+      } else {
+        newSet.add(flightId);
+      }
+      return newSet;
+    });
+  };
+
   const handleChangeDate = () => {
     setShowDatePicker(true);
   };
@@ -344,13 +403,10 @@ export const SearchResultsScreen: React.FC = () => {
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case 'DELAYED':
       case 'Delayed':
         return 'Delayed';
-      case 'ARRIVED':
       case 'Arrived':
         return 'Arrived';
-      case 'ON_TIME':
       case 'OnTime':
         return 'In the air';
       default:
@@ -358,30 +414,56 @@ export const SearchResultsScreen: React.FC = () => {
     }
   };
 
-  const renderFlightItem = ({ item }: { item: FlightItemData }) => (
-    <FlightItem>
-      <StatusBadge status={item.status}>
-        <StatusText>{getStatusText(item.status)}</StatusText>
-      </StatusBadge>
-      <FlightTimesRow>
-        <TimeText>{item.departureTime}</TimeText>
-        <FlightStatusLine status={item.status} />
-        <TimeText>{item.arrivalTime}</TimeText>
-      </FlightTimesRow>
-      <FlightDetailsRow>
-        <AirportCode>{item.departureAirport}</AirportCode>
-        <FlightDurationContainer>
-          <FlightDuration>{item.duration}</FlightDuration>
-        </FlightDurationContainer>
-        <AirportCode>{item.arrivalAirport}</AirportCode>
-      </FlightDetailsRow>
-      <SeparatorLine />
-      <BottomRow>
-        <FlightNumberBottom>AM {item.flightCode}</FlightNumberBottom>
-        <DetailsText>Details</DetailsText>
-      </BottomRow>
-    </FlightItem>
-  );
+  const getSortedFlights = () => {
+    return [...flights].sort((a, b) => {
+      const aIsFavorite = favoriteFlights.has(a.id);
+      const bIsFavorite = favoriteFlights.has(b.id);
+      
+      if (aIsFavorite && !bIsFavorite) return -1;
+      if (!aIsFavorite && bIsFavorite) return 1;
+      
+      return 0;
+    });
+  };
+
+  const renderFlightItem = ({ item }: { item: FlightItemData }) => {
+    const isFavorite = favoriteFlights.has(item.id);
+    
+    return (
+      <FlightItem>
+        <StatusBadge status={item.status}>
+          <StatusText>{getStatusText(item.status)}</StatusText>
+        </StatusBadge>
+        {isDestinationSearch && (
+          <FavoriteRow>
+            <FavoriteText>Favorite</FavoriteText>
+            <ToggleContainer isActive={isFavorite} onPress={() => handleToggleFavorite(item.id)}>
+              <ToggleCircle isActive={isFavorite} />
+            </ToggleContainer>
+          </FavoriteRow>
+        )}
+        <FlightTimesRow>
+          <TimeText>{item.departureTime}</TimeText>
+          <FlightStatusLine status={item.status} />
+          <TimeText>{item.arrivalTime}</TimeText>
+        </FlightTimesRow>
+        <FlightDetailsRow>
+          <AirportCode>{item.departureAirport}</AirportCode>
+          <FlightDurationContainer>
+            <FlightDuration>{item.duration}</FlightDuration>
+          </FlightDurationContainer>
+          <AirportCode>{item.arrivalAirport}</AirportCode>
+        </FlightDetailsRow>
+        <SeparatorLine />
+        <BottomRow>
+          <FlightNumberBottom>AM {item.flightCode}</FlightNumberBottom>
+          <DetailsButton onPress={() => handleViewDetails(item)}>
+            <DetailsText>Details</DetailsText>
+          </DetailsButton>
+        </BottomRow>
+      </FlightItem>
+    );
+  };
 
   return (
     <Container>
@@ -433,7 +515,7 @@ export const SearchResultsScreen: React.FC = () => {
 
       {flights.length > 0 && (
         <FlightList
-          data={flights}
+          data={getSortedFlights()}
           renderItem={renderFlightItem}
           keyExtractor={(item) => item.id}
           showsVerticalScrollIndicator={false}

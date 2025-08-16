@@ -7,9 +7,11 @@ interface FlightStatusLineProps {
 }
 
 const StatusLineContainer = styled.View`
-  width: 53%;
+  flex: 1;
   flex-direction: row;
   align-items: center;
+  justify-content: center;
+  padding: 0 5px;
 `;
 
 const Circle = styled.View`
@@ -24,14 +26,13 @@ const EndCircle = styled.View`
   height: 9px;
   background-color: #000;
   border-radius: 4.5px;
-  margin-left: 3px;
 `;
 
 const StatusLine = styled.View`
   flex: 1;
   height: 2px;
   background-color: #000;
-  margin-left: 2px;
+  margin: 0 5px;
 `;
 
 const DottedStatusLine = styled.View`
@@ -42,30 +43,30 @@ const DottedStatusLine = styled.View`
   border-width: 1px;
   border-color: #000;
   border-top-width: 1px;
-  margin-left: 2px;
+  margin: 0 5px;
 `;
 
 const LargeStatusLine = styled.View`
-  flex: 0.8;
+  flex: 2;
   height: 2px;
   background-color: #000;
-  margin-left: 2px;
+  margin: 0 5px;
 `;
 
 const SmallDottedStatusLine = styled.View`
-  flex: 0.2;
+  flex: 1;
   height: 2px;
   background-color: transparent;
   border-style: dashed;
   border-width: 1px;
   border-color: #000;
   border-top-width: 1px;
-  margin-left: 2px;
+  margin: 0 5px;
 `;
 
 const PlaneIcon = styled(Image)`
-  width: 35px;
-  height: 20px;
+  width: 32px;
+  height: 18px;
   align-self: center;
 `;
 

@@ -49,6 +49,12 @@ export const useSearchResultsViewModel = (flightNumber: string, selectedDate: Da
       duration: calculateDuration(flight.estimatedDepartureTime, flight.estimatedArrivalTime),
       flightCode: flight.segment.operatingFlightCode,
       delayInMinutes: flight.delayInMinutes,
+      estimatedDepartureTime: flight.estimatedDepartureTime,
+      boardingTerminal: flight.boardingTerminal,
+      boardingGate: flight.boardingGate,
+      boardingTime: flight.boardingTime,
+      arrivalTerminal: flight.arrivalTerminal,
+      arrivalDateTime: flight.segment.arrivalDateTime,
     }));
   };
 
