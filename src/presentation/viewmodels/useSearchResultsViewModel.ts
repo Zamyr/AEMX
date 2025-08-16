@@ -6,42 +6,17 @@ import OrigenDestinoData from '../../../data/OrigenDestinoResponse.json';
 export const useSearchResultsViewModel = (flightNumber: string, selectedDate: Date) => {
   const flightRepository = FlightRepository.getInstance();
 
-  // Detectar si es búsqueda por origen-destino (formato: "MEX-CUN")
   const isDestinationSearch = flightNumber.includes('-');
   const [origin, destination] = isDestinationSearch ? flightNumber.split('-') : ['', ''];
-
-  console.log('SearchResults - Input params:', {
-    flightNumber,
-    selectedDate: selectedDate.toISOString(),
-    isDestinationSearch,
-    origin,
-    destination
-  });
 
   const searchQuery = useQuery({
     queryKey: ['flights', flightNumber, selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate()],
     queryFn: async () => {
-      console.log('SearchResults - QueryFn executing with:', {
-        isDestinationSearch,
-        flightNumber,
-        origin,
-        destination
-      });
-      
       if (isDestinationSearch) {
-        // Búsqueda por origen/destino usando OrigenDestinoData
-        // Usar la misma lógica de conversión de fecha que en DestinationFormViewModel
         const targetYear = selectedDate.getFullYear();
         const targetMonth = selectedDate.getMonth() + 1;
         const targetDay = selectedDate.getDate();
         const targetDate = `${targetYear}-${targetMonth.toString().padStart(2, '0')}-${targetDay.toString().padStart(2, '0')}`;
-        
-        console.log('SearchResults - Destination search:', {
-          origin,
-          destination,
-          targetDate,
-          selectedDate: selectedDate.toISOString()
-        });
         
         const filteredFlights = OrigenDestinoData.flightStatusCollection.filter(flight => {
           const flightDate = flight.estimatedDepartureTime?.split('T')[0];
@@ -52,17 +27,14 @@ export const useSearchResultsViewModel = (flightNumber: string, selectedDate: Da
           return departureMatch && arrivalMatch && dateMatch;
         });
         
-        console.log('SearchResults - Filtered flights:', filteredFlights.length);
-        
         return { flightStatusCollection: filteredFlights };
       } else {
-        // Búsqueda por número de vuelo normal
         return flightRepository.searchFlightByNumber(flightNumber, selectedDate);
       }
     },
     enabled: !!flightNumber && flightNumber.trim().length > 0,
-    staleTime: 5 * 60 * 1000, // 5 minutos
-    gcTime: 10 * 60 * 1000, // 10 minutos (reemplaza cacheTime)
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
   });
 
   const transformFlightData = (flights: FlightStatus[]) => {
@@ -116,13 +88,6 @@ export const useSearchResultsViewModel = (flightNumber: string, selectedDate: Da
 
   const flights = searchQuery.data?.flightStatusCollection || [];
   const transformedFlights = transformFlightData(flights);
-  
-  console.log('SearchResults - Final data:', {
-    rawFlights: flights.length,
-    transformedFlights: transformedFlights.length,
-    isLoading: searchQuery.isLoading,
-    error: searchQuery.error
-  });
   
   const routeText = flights.length > 0 ? 
     formatRoute(flights[0].segment.departureAirport, flights[0].segment.arrivalAirport) : 

@@ -142,7 +142,7 @@ const FlightList = styled(FlatList<FlightItemData>)`
 const FlightItem = styled.View`
   width: 360px;
   height: 122px;
-  border-radius: 12px;
+  border-radius: 15px;
   border-width: 2px;
   border-color: #000;
   margin-bottom: 15px;
@@ -150,25 +150,40 @@ const FlightItem = styled.View`
   padding: 15px;
 `;
 
-const StatusBadge = styled.View`
+const StatusBadge = styled.View<{ status: string }>`
   position: absolute;
-  top: -1px;
-  left: -1px;
+  top: 0px;
+  left: 0px;
   width: 80px;
   height: 28px;
   padding: 4px 20px 4px 20px;
-  background-color: #000;
+  background-color: ${({ status }) => {
+    switch (status) {
+      case 'DELAYED':
+      case 'Delayed':
+        return '#FECB2F';
+      case 'ARRIVED':
+      case 'Arrived':
+        return '#000';
+      case 'ON_TIME':
+      case 'OnTime':
+        return '#1872B3';
+      default:
+        return '#000';
+    }
+  }};
   border-bottom-right-radius: 20px;
-  border-top-left-radius: 10px;
+  border-top-left-radius: 12px;
   justify-content: center;
 `;
 
 const StatusText = styled.Text`
   font-family: 'Garnett-Semibold';
   font-weight: 600;
-  font-size: 11px;
+  font-size: 10px;
   line-height: 20px;
   color: #fff;
+  width: 80px
 `;
 
 const FlightTimesRow = styled.View`
@@ -292,7 +307,6 @@ export const SearchResultsScreen: React.FC = () => {
   const [currentDate, setCurrentDate] = useState(route.params.selectedDate);
   const [showDatePicker, setShowDatePicker] = useState(false);
   
-  // Detectar si es búsqueda por origen-destino
   const isDestinationSearch = flightNumber.includes('-');
   const [origin, destination] = isDestinationSearch ? flightNumber.split('-') : ['', ''];
   
@@ -328,10 +342,26 @@ export const SearchResultsScreen: React.FC = () => {
     }
   };
 
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case 'DELAYED':
+      case 'Delayed':
+        return 'Delayed';
+      case 'ARRIVED':
+      case 'Arrived':
+        return 'Arrived';
+      case 'ON_TIME':
+      case 'OnTime':
+        return 'In the air';
+      default:
+        return status;
+    }
+  };
+
   const renderFlightItem = ({ item }: { item: FlightItemData }) => (
     <FlightItem>
-      <StatusBadge>
-        <StatusText>{item.status}</StatusText>
+      <StatusBadge status={item.status}>
+        <StatusText>{getStatusText(item.status)}</StatusText>
       </StatusBadge>
       <FlightTimesRow>
         <TimeText>{item.departureTime}</TimeText>
@@ -347,7 +377,7 @@ export const SearchResultsScreen: React.FC = () => {
       </FlightDetailsRow>
       <SeparatorLine />
       <BottomRow>
-        <FlightNumberBottom>AM{item.flightCode}</FlightNumberBottom>
+        <FlightNumberBottom>AM {item.flightCode}</FlightNumberBottom>
         <DetailsText>Details</DetailsText>
       </BottomRow>
     </FlightItem>

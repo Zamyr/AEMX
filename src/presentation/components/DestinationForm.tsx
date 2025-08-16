@@ -253,14 +253,12 @@ const LoadingContainer = styled.View`
   margin-top: 8px;
 `;
 
-// Types
 interface Airport {
   code: string;
   city: string;
   country: string;
 }
 
-// Mock data
 const airports: Airport[] = [
   { code: 'MEX', city: 'Mexico City', country: 'Mexico' },
   { code: 'CUN', city: 'Cancun', country: 'Mexico' },
@@ -391,7 +389,6 @@ export const DestinationForm: React.FC = () => {
         </DestinationText>
       </TextContainer>
 
-      {/* Origin Picker Modal */}
       <Modal
         visible={showOriginPicker}
         transparent={true}
@@ -423,7 +420,6 @@ export const DestinationForm: React.FC = () => {
         </ModalOverlay>
       </Modal>
 
-      {/* Destination Picker Modal */}
       <Modal
         visible={showDestinationPicker}
         transparent={true}
